@@ -55,7 +55,7 @@ app.post('/locations', (request, response) => {
   queries
     .create('locations', request.body)
     .then(locations => {
-      response.status(201).json({ locations: locations })
+      response.sendStatus(201).json({ locations: locations })
     })
     .catch(console.error)
 })
@@ -79,7 +79,7 @@ app.put('/locations/:id', (request, response) => {
 })
 
 app.use((request, response) => {
-  response.send(404)
+  response.sendStatus(404)
 })
 
 module.exports = app

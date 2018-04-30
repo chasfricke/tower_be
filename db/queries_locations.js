@@ -8,7 +8,7 @@ module.exports = {
       return knex('locations').where('id', id).first()
     },
     create(locations, item){
-      return knex('locations').insert(locations).returning('*')
+      return knex('locations').insert(item).returning('*')
         .then (record => record[0])
     },
     update(locations, id, location){

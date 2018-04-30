@@ -1,21 +1,21 @@
 const knex = require("./database-connection");
 
 module.exports = {
-    list(){
+    list(locations){
       return knex('locations')
     },
-    read(id){
+    read(locations, id){
       return knex('locations').where('id', id).first()
     },
-    create(locations){
+    create(locations, item){
       return knex('locations').insert(locations).returning('*')
         .then (record => record[0])
     },
-    update(id, locations){
-      return knex('locations').update(locations).where('id', id).returning('*')
+    update(locations, id, location){
+      return knex('locations').update(location).where('id', id).returning('*')
         .then(record => record[0])
     },
-    delete(id){
+    delete(locations, id){
       return knex('locations').delete().where('id', id);
     }
 };

@@ -1,24 +1,3 @@
-// const express = require("express");
-// const app = express();
-// const bodyParser = require("body-parser");
-// const cors = require("cors");
-
-// app.use(cors({origin: true}))
-// app.use(bodyParser.json());
-
-// app.use("/locations", require('./routes/locations'))
-
-// app.use((request, response) => {
-//     response.status(404).send({message: 'url not found'});
-// });
-
-// app.use((err, req, res, next) => {
-//     console.error('ERROR:', err);
-//     res.status(500).send({message: err.message, stack: err.stack})
-// });
-
-// module.exports = app;
-
 const express = require('express')
 const app = express()
 const cors = require('cors')
@@ -30,7 +9,7 @@ app.use(cors())
 app.use(bodyParser.json())
 
 app.get('/', (request, response) => {
-  queries.list('locations').catch(console.error)
+  queries.list('locations').catch(next)
 })
 
 app.get('/locations', (request, response) => {
@@ -39,7 +18,7 @@ app.get('/locations', (request, response) => {
     .then(locations => {
       response.json({ locations })
     })
-    .catch(console.error)
+    .catch(next)
 })
 
 app.get('/locations/:id', (request, response) => {
@@ -48,16 +27,16 @@ app.get('/locations/:id', (request, response) => {
     .then(locations => {
       locations ? response.json({ locations }) : response.sendStatus(404)
     })
-    .catch(console.error)
+    .catch(next)
 })
 
 app.post('/locations', (request, response) => {
   queries
     .create('locations', request.body)
     .then(locations => {
-      response.sendStatus(201).json({ locations: locations })
+      response.status(201).json({ locations: locations })
     })
-    .catch(console.error)
+    .catch(next)
 })
 
 app.delete('/locations/:id', (request, response) => {
@@ -66,7 +45,7 @@ app.delete('/locations/:id', (request, response) => {
     .then(() => {
       response.sendStatus(204)
     })
-    .catch(console.error)
+    .catch(next)
 })
 
 app.put('/locations/:id', (request, response) => {
@@ -75,11 +54,26 @@ app.put('/locations/:id', (request, response) => {
     .then(locations => {
       response.json({ locations: locations[0] })
     })
-    .catch(console.error)
+    .catch(next)
 })
 
-app.use((request, response) => {
-  response.sendStatus(404)
-})
+app.use(notFound)
+app.use(errorHandler)
+
+function notFound(req, res, next) {
+  const url = req.originalUrl
+  if (!/favicon\.ico$/.test(url) && !/robots\.txt$/.test(url)) {
+    // Don't log less important (automatic) browser requests
+    console.error('[404: Requested file not found] ', url)
+  }
+  res.status(404).send({error: 'Url not found', status: 404, url})
+}
+
+function errorHandler(err, req, res, next) {
+  console.error('ERROR', err)
+  const stack =  process.env.NODE_ENV !== 'production' ? err.stack : undefined
+  res.status(500).send({error: err.message, stack, url: req.originalUrl})
+}
+
 
 module.exports = app

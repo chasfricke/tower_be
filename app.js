@@ -8,11 +8,11 @@ const database = require('./db/database-connection')
 app.use(cors())
 app.use(bodyParser.json())
 
-app.get('/', (request, response) => {
+app.get('/', (request, response, next) => {
   queries.list('locations').catch(next)
 })
 
-app.get('/locations', (request, response) => {
+app.get('/locations', (request, response, next) => {
   queries
     .list('locations')
     .then(locations => {
@@ -21,7 +21,7 @@ app.get('/locations', (request, response) => {
     .catch(next)
 })
 
-app.get('/locations/:id', (request, response) => {
+app.get('/locations/:id', (request, response, next) => {
   queries
     .read('locations', request.params.id)
     .then(locations => {
@@ -30,7 +30,7 @@ app.get('/locations/:id', (request, response) => {
     .catch(next)
 })
 
-app.post('/locations', (request, response) => {
+app.post('/locations', (request, response, next) => {
   queries
     .create('locations', request.body)
     .then(locations => {
@@ -39,7 +39,7 @@ app.post('/locations', (request, response) => {
     .catch(next)
 })
 
-app.delete('/locations/:id', (request, response) => {
+app.delete('/locations/:id', (request, response, next) => {
   queries
     .delete('locations', request.params.id)
     .then(() => {
@@ -48,7 +48,7 @@ app.delete('/locations/:id', (request, response) => {
     .catch(next)
 })
 
-app.put('/locations/:id', (request, response) => {
+app.put('/locations/:id', (request, response, next) => {
   queries
     .update('locations', request.params.id, request.body)
     .then(locations => {

@@ -1,62 +1,24 @@
 const express = require('express')
-const app = express()
 const cors = require('cors')
-const queries = require('./db/queries_locations')
+// const queries = require('./db/queries_locations')
+// const queries2 = require('./db/queries_dropoff_details')
 const bodyParser = require('body-parser')
 const database = require('./db/database-connection')
+const morgan = require('morgan')
+
+const locations = require('./routes/locations')
+const dropoff_details = require('./routes/dropoff_details')
+
+const app = express()
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(morgan(process.env.NODE_ENV !== 'production' ? 'dev' : 'combined'))
 
-app.get('/', (request, response, next) => {
-  queries.list('locations').catch(next)
-})
+app.use('/', locations)
+app.use('/', dropoff_details)
 
-app.get('/locations', (request, response, next) => {
-  queries
-    .list('locations')
-    .then(locations => {
-      response.json({ locations })
-    })
-    .catch(next)
-})
-
-app.get('/locations/:id', (request, response, next) => {
-  queries
-    .read('locations', request.params.id)
-    .then(locations => {
-      locations ? response.json({ locations }) : response.sendStatus(404)
-    })
-    .catch(next)
-})
-
-app.post('/locations', (request, response, next) => {
-  queries
-    .create('locations', request.body)
-    .then(locations => {
-      response.status(201).json({ locations: locations })
-    })
-    .catch(next)
-})
-
-app.delete('/locations/:id', (request, response, next) => {
-  queries
-    .delete('locations', request.params.id)
-    .then(() => {
-      response.sendStatus(204)
-    })
-    .catch(next)
-})
-
-app.put('/locations/:id', (request, response, next) => {
-  queries
-    .update('locations', request.params.id, request.body)
-    .then(locations => {
-      response.json({ locations: locations[0] })
-    })
-    .catch(next)
-})
-
+//Error Handling
 app.use(notFound)
 app.use(errorHandler)
 
